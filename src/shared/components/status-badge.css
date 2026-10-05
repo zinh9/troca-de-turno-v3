@@ -1,0 +1,38 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-1);
+  padding: var(--espaco-1) var(--espaco-3);
+  border-radius: var(--raio-pill);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.badge--ok       { color: var(--cor-ok-400);      background: var(--cor-ok-glow);      border-color: rgba(47,191,120,.35); }
+.badge--alerta   { color: var(--cor-alerta-500);  background: var(--cor-alerta-glow);  border-color: rgba(242,153,74,.35); }
+.badge--critico  { color: var(--cor-critico-400); background: var(--cor-critico-glow); border-color: rgba(239,68,68,.4); }
+.badge--ambar    { color: var(--cor-ambar-400);   background: var(--cor-ambar-glow);   border-color: rgba(236,177,31,.4); }
+.badge--info     { color: var(--cor-info-500);    background: var(--cor-info-glow);    border-color: rgba(74,163,242,.35); }
+.badge--neutro   { color: var(--cor-texto-secundario); background: rgba(148,189,214,.08); border-color: var(--cor-borda-sutil); }
+
+/* Em contexto de painel/CCP (TV), o texto pode ficar pequeno demais — reforça leitura à distância */
+[data-contexto='painel'] .badge {
+  padding: var(--espaco-2) var(--espaco-4);
+  font-size: var(--texto-sm);
+}
+[data-contexto='painel'] .badge::before {
+  width: 9px;
+  height: 9px;
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pátio | Sistema Troca de Turno</title>
+
+<!-- Fontes: Inter (UI) + IBM Plex Mono (relógios/cronômetros/matrículas) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@450;560;650;760&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<!-- Design system -->
+<link rel="stylesheet" href="./src/styles/base.css" />
+
+<!-- CSS de cada componente/módulo — cada um isolado por convenção de nome (ver README) -->
+<link rel="stylesheet" href="./src/shared/components/status-badge.css" />
+<link rel="stylesheet" href="./src/shared/components/cronometro.css" />
+<link rel="stylesheet" href="./src/shared/components/stepper-jornada.css" />
+<link rel="stylesheet" href="./src/shared/components/modal.css" />
+<link rel="stylesheet" href="./src/shared/components/app-header.css" />
+<link rel="stylesheet" href="./src/shared/components/tabela-jornada.css" />
+<link rel="stylesheet" href="./src/shared/components/celula-intervalo.css" />
+<link rel="stylesheet" href="./src/modules/apresentacao/apresentacao.css" />
+<link rel="stylesheet" href="./src/modules/ccp/ccp.css" />
+<link rel="stylesheet" href="./src/modules/menu/menu.css" />
+<link rel="stylesheet" href="./src/modules/historico/historico.css" />
+<link rel="stylesheet" href="./src/modules/indicadores/indicadores.css" />
+
+<style>
+  .barra-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--espaco-2);
+    padding: var(--espaco-3) var(--espaco-6);
+    border-bottom: 1px solid var(--cor-borda-sutil);
+    overflow-x: auto;
+  }
+  .barra-nav a {
+    color: var(--cor-texto-secundario);
+    text-decoration: none;
+    font-size: var(--texto-sm);
+    padding: var(--espaco-2) var(--espaco-3);
+    border-radius: var(--raio-sm);
+    white-space: nowrap;
+  }
+  .barra-nav a:hover { background: var(--cor-fundo-2); color: var(--cor-texto-primario); }
+  .barra-nav .marca { font-weight: var(--peso-negrito); color: var(--cor-ambar-400); margin-right: var(--espaco-4); }
+  .barra-nav .separador { flex: 1; }
+  .barra-nav select { font-size: var(--texto-xs); }
+</style>
+</head>
+<body>
+
+<nav class="barra-nav">
+  <span class="marca">TROCA DE TURNO</span>
+  <a href="#/menu">Menu</a>
+  <a href="#/historico">Histórico</a>
+  <a href="#/indicadores">Indicadores</a>
+  <span class="separador"></span>
+  <label class="texto-terciario" for="seletor-contexto">Exibição:</label>
+  <select id="seletor-contexto">
+    <option value="totem">Totem (toque)</option>
+    <option value="painel">Painel / CCP (TV)</option>
+  </select>
+</nav>
+
+<main id="app-outlet"></main>
+
+<!-- Chart.js via CDN, usado pelo módulo de indicadores -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script>
+  window.APP_CONFIG = { apiBaseUrl: '/api' };
+</script>
+
+<script type="module" src="./src/core/app.js"></script>
+
+<script>
+  // Alterna o atributo data-contexto do outlet ativo (fora do escopo do
+  // router para não acoplar essa preferência de exibição à navegação).
+  document.getElementById('seletor-contexto').addEventListener('change', (e) => {
+    document.getElementById('app-outlet').dataset.contexto = e.target.value;
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+.cronometro {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--espaco-2);
+  padding: var(--espaco-2) var(--espaco-4);
+  border-radius: var(--raio-md);
+  border: 1px solid var(--cor-borda-media);
+  background: var(--cor-fundo-2);
+  transition: background var(--duracao-padrao) var(--curva-padrao),
+              border-color var(--duracao-padrao) var(--curva-padrao);
+}
+
+.cronometro__valor {
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-primario);
+  letter-spacing: 0.02em;
+}
+
+.cronometro__rotulo {
+  font-size: var(--texto-2xs);
+  color: var(--cor-texto-terciario);
+  text-transform: lowercase;
+}
+
+.cronometro[data-estado='rodando'] {
+  border-color: rgba(74, 163, 242, 0.4);
+  background: linear-gradient(135deg, rgba(74,163,242,.14), var(--cor-fundo-2));
+}
+.cronometro[data-estado='rodando'] .cronometro__valor { color: var(--cor-info-500); }
+
+.cronometro[data-estado='tolerancia'] {
+  border-color: rgba(236, 177, 31, 0.5);
+  background: linear-gradient(135deg, var(--cor-ambar-glow), var(--cor-fundo-2));
+  animation: cronometro-pulso 1.6s ease-in-out infinite;
+}
+.cronometro[data-estado='tolerancia'] .cronometro__valor { color: var(--cor-ambar-400); }
+
+.cronometro[data-estado='excedido'] {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: linear-gradient(135deg, var(--cor-critico-glow), var(--cor-fundo-2));
+}
+.cronometro[data-estado='excedido'] .cronometro__valor { color: var(--cor-critico-400); }
+
+.cronometro[data-estado='ocioso'] { opacity: 0.5; }
+
+@keyframes cronometro-pulso {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(236,177,31,0); }
+  50%      { box-shadow: 0 0 0 4px rgba(236,177,31,.18); }
+}

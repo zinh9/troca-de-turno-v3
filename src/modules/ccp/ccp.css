@@ -1,0 +1,39 @@
+.tela-ccp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  padding-bottom: var(--espaco-8);
+}
+
+.tela-ccp__controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  padding: var(--espaco-5) var(--espaco-6) 0;
+}
+
+.tela-ccp__supervisao {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  color: var(--cor-titulo-ccp);
+  font-weight: var(--peso-semi);
+  font-size: var(--texto-lg);
+}
+
+.tela-ccp__menu {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  min-height: 40px;
+  padding: 0 var(--espaco-4);
+  border-radius: var(--raio-sm);
+  background: var(--cor-fundo-2);
+  border: 1px solid var(--cor-borda-media);
+  color: var(--cor-texto-primario);
+}
+
+.tela-ccp > .tabela-jornada {
+  margin: 0 var(--espaco-6);
+}

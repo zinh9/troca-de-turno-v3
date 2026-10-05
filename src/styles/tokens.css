@@ -1,0 +1,133 @@
+/*
+ * tokens.css — Design System "Pátio" (Sistema Troca de Turno)
+ * ---------------------------------------------------------------
+ * Paleta: azul-petróleo profundo (não preto puro) + âmbar institucional
+ * (#ECB11F) como acento primário de atenção. Verde = conforme/pronto.
+ * Vermelho = atraso/crítico. Pensado para dois contextos de leitura:
+ *   - TOTEM (toque, ~40-60cm, luz de pátio variável, dedo grosso)
+ *   - PAINEL/CCP (TV a 3-5m, leitura passiva, sem interação)
+ * Ambos herdam os mesmos tokens; o que muda é escala (ver base.css
+ * seletor [data-contexto="painel"]).
+ */
+
+:root {
+  /* ---- Superfícies (azul-petróleo, nunca #000) ---- */
+  --cor-fundo-0: #1e1e1e;   /* base da aplicação */
+  --cor-fundo-1: #0f1e2e;   /* superfície de painel/tabela */
+  --cor-fundo-2: #142839;   /* card elevado */
+  --cor-fundo-3: #1b3245;   /* card hover / elemento ativo */
+  --cor-borda-sutil: rgba(148, 189, 214, 0.12);
+  --cor-borda-media: rgba(148, 189, 214, 0.22);
+
+  /* ---- Glass / elevação ---- */
+  --glass-fundo: linear-gradient(180deg, rgba(27, 50, 69, 0.72) 0%, rgba(15, 30, 46, 0.85) 100%);
+  --glass-borda: rgba(236, 177, 31, 0.14);
+  --glass-blur: 14px;
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --sombra-2: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+  --sombra-foco-ambar: 0 0 0 3px rgba(236, 177, 31, 0.35);
+
+  /* ---- Texto ---- */
+  --cor-texto-primario: #eef4f8;
+  --cor-texto-secundario: #9fb4c4;
+  --cor-texto-terciario: #6d8598;
+  --cor-texto-inverso: #0a1420;
+
+  /* ---- Acento institucional (âmbar Vale) ---- */
+  --cor-ambar-500: #ecb11f;
+  --cor-ambar-400: #f4c452;
+  --cor-ambar-600: #c8930f;
+  --cor-ambar-glow: rgba(236, 177, 31, 0.28);
+
+  /* ---- Estados semânticos ---- */
+  --cor-ok-500: #2fbf78;
+  --cor-ok-400: #57d597;
+  --cor-ok-glow: rgba(47, 191, 120, 0.25);
+
+  --cor-alerta-500: #f2994a;
+  --cor-alerta-glow: rgba(242, 153, 74, 0.25);
+
+  --cor-critico-500: #ef4444;
+  --cor-critico-400: #f77;
+  --cor-critico-glow: rgba(239, 68, 68, 0.28);
+
+  --cor-info-500: #4aa3f2;
+  --cor-info-glow: rgba(74, 163, 242, 0.22);
+
+  --cor-neutro-500: #5c7488; /* aguardando / inativo */
+
+  /* ---- Identidade por tela (título do header, linha decorativa) ---- */
+  --cor-titulo-patio: var(--cor-ambar-500);
+  --cor-titulo-ccp: #e63955;
+  --cor-titulo-ccp-glow: rgba(230, 57, 85, 0.25);
+
+  /* ---- Ações primárias das telas de pátio/CCP ---- */
+  --cor-acao-azul: #3161e8;
+  --cor-acao-azul-hover: #4d76f0;
+  --cor-desabilitado-fundo: #3a4654;
+  --cor-desabilitado-texto: #aab8c4;
+
+  /* ---- Tipografia ---- */
+  --fonte-base: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --fonte-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --texto-2xs: 0.6875rem;   /* 11px — legendas densas em tabela */
+  --texto-xs: 0.75rem;      /* 12px */
+  --texto-sm: 0.875rem;     /* 14px */
+  --texto-md: 1rem;         /* 16px — corpo padrão */
+  --texto-lg: 1.25rem;      /* 20px */
+  --texto-xl: 1.75rem;      /* 28px — números de destaque em totem */
+  --texto-2xl: 2.5rem;      /* 40px — relógio, cronômetro */
+  --texto-3xl: 3.5rem;      /* 56px — indicador de painel/CCP */
+
+  --peso-regular: 450;
+  --peso-medio: 560;
+  --peso-semi: 650;
+  --peso-negrito: 760;
+
+  --entrelinha-compacta: 1.2;
+  --entrelinha-padrao: 1.5;
+
+  /* ---- Espaçamento (escala 4px) ---- */
+  --espaco-1: 4px;
+  --espaco-2: 8px;
+  --espaco-3: 12px;
+  --espaco-4: 16px;
+  --espaco-5: 20px;
+  --espaco-6: 24px;
+  --espaco-8: 32px;
+  --espaco-10: 40px;
+  --espaco-12: 48px;
+
+  /* ---- Raio ---- */
+  --raio-sm: 8px;
+  --raio-md: 14px;
+  --raio-lg: 20px;
+  --raio-pill: 999px;
+
+  /* ---- Transições ---- */
+  --duracao-rapida: 120ms;
+  --duracao-padrao: 220ms;
+  --curva-padrao: cubic-bezier(0.2, 0.7, 0.3, 1);
+
+  /* ---- Z-index ---- */
+  --z-painel: 10;
+  --z-modal: 100;
+  --z-toast: 200;
+}
+
+/* Contexto TOTEM: toque, mais perto, precisa de alvo de toque maior */
+[data-contexto='totem'] {
+  --alvo-toque-min: 44px;
+  --texto-md: 1.0625rem;
+}
+
+/* Contexto PAINEL/CCP: leitura à distância, prioriza contraste e escala */
+[data-contexto='painel'] {
+  --texto-sm: 1rem;
+  --texto-md: 1.125rem;
+  --texto-lg: 1.5rem;
+  --texto-xl: 2.25rem;
+  --texto-2xl: 3.25rem;
+  --texto-3xl: 4.5rem;
+}

@@ -1,0 +1,147 @@
+.tabela-jornada {
+  overflow: hidden;
+  border-radius: var(--raio-lg);
+}
+
+.tabela-jornada__linha {
+  display: grid;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-3) var(--espaco-5);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+}
+.tabela-jornada__corpo .tabela-jornada__linha:last-child { border-bottom: none; }
+
+/* Variante totem: TAC | Apres | Pront | Lanche | Refeição | Fim Jornada */
+.tabela-jornada--totem .tabela-jornada__linha {
+  grid-template-columns: 2.1fr 0.8fr 1.4fr 1.6fr 1.6fr 1fr;
+}
+
+/* Variante CCP: TAC | Cargo | Local | Apres | Pront | Chamada | Lanche | Refeição | Fim */
+.tabela-jornada--ccp .tabela-jornada__linha {
+  grid-template-columns: 1.9fr 0.7fr 0.9fr 0.9fr 0.9fr 1.3fr 1.3fr 1.3fr 0.9fr;
+}
+
+.tabela-jornada__linha--cabecalho {
+  background: var(--cor-fundo-1);
+  border-top: 2px solid var(--cor-ambar-500);
+  border-bottom: 2px solid var(--cor-ambar-500);
+  padding-top: var(--espaco-3);
+  padding-bottom: var(--espaco-3);
+}
+.tabela-jornada--ccp .tabela-jornada__linha--cabecalho {
+  border-top-color: var(--cor-titulo-ccp);
+  border-bottom-color: var(--cor-titulo-ccp);
+}
+
+.tabela-jornada__cabecalho-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-1);
+  color: var(--cor-ambar-500);
+  font-weight: var(--peso-semi);
+  font-size: var(--texto-sm);
+  white-space: nowrap;
+}
+.tabela-jornada--ccp .tabela-jornada__cabecalho-item { color: var(--cor-titulo-ccp); }
+.tabela-jornada__cabecalho-item small {
+  display: block;
+  color: var(--cor-texto-terciario);
+  font-weight: var(--peso-regular);
+  font-size: var(--texto-2xs);
+}
+
+.tabela-jornada__linha:not(.tabela-jornada__linha--cabecalho):hover {
+  background: var(--cor-fundo-2);
+}
+.tabela-jornada__linha[data-atrasado='true']:not(.tabela-jornada__linha--cabecalho) {
+  box-shadow: inset 3px 0 0 var(--cor-critico-500);
+}
+
+/* ---- Nome + dois indicadores binários ---- */
+.tabela-jornada__nome {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  min-width: 0;
+}
+.tabela-jornada__reenviar {
+  color: var(--cor-texto-terciario);
+  flex-shrink: 0;
+  transition: color var(--duracao-rapida);
+}
+.tabela-jornada__reenviar:hover { color: var(--cor-texto-primario); }
+.tabela-jornada__nome-texto {
+  font-weight: var(--peso-semi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dot-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px transparent;
+}
+.dot-status--ok { background: var(--cor-ok-500); box-shadow: 0 0 0 3px var(--cor-ok-glow); }
+.dot-status--pendente { background: var(--cor-neutro-500); }
+
+.tabela-jornada__texto {
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}
+
+.tabela-jornada__hora {
+  font-size: var(--texto-md);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-primario);
+}
+.tabela-jornada__hora[data-atencao='true'] { color: var(--cor-alerta-500); }
+.tabela-jornada__hora--muda { color: var(--cor-texto-terciario); font-weight: var(--peso-regular); }
+
+.tabela-jornada__excedeu {
+  color: var(--cor-alerta-500);
+  font-weight: var(--peso-negrito);
+  font-size: var(--texto-sm);
+  letter-spacing: 0.02em;
+}
+
+.tabela-jornada__chamada {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-1);
+  height: 32px;
+  padding: 0 var(--espaco-3);
+  border-radius: var(--raio-sm);
+  background: var(--cor-fundo-3);
+  border: 1px solid var(--cor-borda-media);
+  color: var(--cor-texto-primario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  white-space: nowrap;
+  transition: background var(--duracao-rapida), border-color var(--duracao-rapida);
+}
+.tabela-jornada__chamada:hover { background: var(--cor-fundo-2); border-color: var(--cor-titulo-ccp); color: var(--cor-titulo-ccp); }
+
+.tabela-jornada__bom-descanso {
+  height: 32px;
+  padding: 0 var(--espaco-4);
+  border-radius: var(--raio-sm);
+  background: var(--cor-texto-primario);
+  color: var(--cor-fundo-0);
+  font-weight: var(--peso-semi);
+  font-size: var(--texto-xs);
+  white-space: nowrap;
+  transition: background var(--duracao-rapida), transform var(--duracao-rapida);
+}
+.tabela-jornada__bom-descanso:hover { background: #d7e3ec; }
+.tabela-jornada__bom-descanso:active { transform: scale(0.97); }
+.tabela-jornada__bom-descanso:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 1100px) {
+  .tabela-jornada { overflow-x: auto; }
+  .tabela-jornada__linha { min-width: 900px; }
+}

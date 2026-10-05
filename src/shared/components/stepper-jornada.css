@@ -1,0 +1,88 @@
+.stepper-jornada {
+  padding: var(--espaco-4) var(--espaco-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+  transition: border-color var(--duracao-padrao) var(--curva-padrao), transform var(--duracao-rapida);
+}
+
+.stepper-jornada:hover { border-color: var(--cor-borda-media); }
+
+.stepper-jornada[data-atrasado='true'] {
+  border-left: 3px solid var(--cor-critico-500);
+}
+
+.stepper-jornada__cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+}
+
+.stepper-jornada__pessoa {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espaco-3);
+  min-width: 0;
+}
+
+.stepper-jornada__nome {
+  font-weight: var(--peso-semi);
+  font-size: var(--texto-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stepper-jornada__trilha {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  overflow-x: auto;
+  padding-bottom: var(--espaco-1);
+}
+
+.stepper-jornada__passo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espaco-1);
+  min-width: 92px;
+  flex-shrink: 0;
+}
+
+.stepper-jornada__rotulo {
+  font-size: var(--texto-2xs);
+  color: var(--cor-texto-terciario);
+  text-transform: none;
+}
+
+.stepper-jornada__marcador {
+  display: none; /* reservado para variação futura com ícone por etapa */
+}
+
+.stepper-jornada__horario {
+  font-size: var(--texto-2xs);
+}
+
+.stepper-jornada__conector {
+  height: 2px;
+  flex: 1 0 24px;
+  min-width: 24px;
+  background: var(--cor-borda-sutil);
+  border-radius: var(--raio-pill);
+  align-self: center;
+  margin-top: -14px;
+}
+
+.stepper-jornada__conector[data-ativo='true'] {
+  background: linear-gradient(90deg, var(--cor-ok-500), rgba(47,191,120,.3));
+}
+
+/* Contexto totem: cards mais altos e alvos de toque maiores para os selects/botões internos das etapas */
+[data-contexto='totem'] .stepper-jornada { padding: var(--espaco-5) var(--espaco-6); }
+
+/* Contexto painel/CCP: prioriza legibilidade a distância, reduz densidade de rótulos secundários */
+[data-contexto='painel'] .stepper-jornada__rotulo,
+[data-contexto='painel'] .stepper-jornada__horario { display: none; }
+[data-contexto='painel'] .stepper-jornada__passo { min-width: 140px; }

@@ -1,0 +1,114 @@
+.tela-apresentacao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  padding-bottom: var(--espaco-8);
+}
+
+.tela-apresentacao__controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--espaco-4) var(--espaco-6) 0;
+}
+
+.tela-apresentacao__guarita {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  position: relative;
+  padding-left: var(--espaco-4);
+  color: var(--cor-ambar-400);
+}
+.tela-apresentacao__guarita-barra {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+  border-radius: var(--raio-pill);
+  background: var(--cor-ambar-500);
+}
+.tela-apresentacao__guarita strong {
+  color: var(--cor-texto-primario);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+}
+
+.tela-apresentacao__form-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  padding: 0 var(--espaco-6);
+}
+
+.tela-apresentacao__form {
+  display: flex;
+  gap: var(--espaco-3);
+}
+
+.tela-apresentacao__form input {
+  min-height: var(--alvo-toque-min, 44px);
+  font-size: var(--texto-md);
+  min-width: 220px;
+}
+
+.botao-acao-azul {
+  min-height: var(--alvo-toque-min, 44px);
+  padding: 0 var(--espaco-5);
+  border-radius: var(--raio-sm);
+  background: var(--cor-acao-azul);
+  color: #fff;
+  font-weight: var(--peso-semi);
+  white-space: nowrap;
+  transition: background var(--duracao-rapida), transform var(--duracao-rapida);
+}
+.botao-acao-azul:hover { background: var(--cor-acao-azul-hover); }
+.botao-acao-azul:active { transform: scale(0.97); }
+
+.botao-desabilitado {
+  min-height: var(--alvo-toque-min, 44px);
+  padding: 0 var(--espaco-5);
+  border-radius: var(--raio-sm);
+  background: var(--cor-desabilitado-fundo);
+  color: var(--cor-desabilitado-texto);
+  font-weight: var(--peso-medio);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  white-space: nowrap;
+}
+
+.tela-apresentacao__acoes-topo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.tela-apresentacao__alerta {
+  width: var(--alvo-toque-min, 44px);
+  height: var(--alvo-toque-min, 44px);
+  border-radius: var(--raio-sm);
+  background: var(--cor-ambar-500);
+  color: var(--cor-texto-inverso);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tela-apresentacao__menu {
+  min-height: var(--alvo-toque-min, 44px);
+  padding: 0 var(--espaco-4);
+  border-radius: var(--raio-sm);
+  background: var(--cor-fundo-2);
+  border: 1px solid var(--cor-borda-media);
+  color: var(--cor-texto-primario);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.tela-apresentacao > .tabela-jornada {
+  margin: 0 var(--espaco-6);
+}

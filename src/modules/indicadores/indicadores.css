@@ -1,0 +1,58 @@
+.tela-indicadores {
+  padding: var(--espaco-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-6);
+}
+
+.tela-indicadores__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--espaco-4);
+}
+
+.kpi-card {
+  padding: var(--espaco-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+.kpi-card__rotulo {
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.kpi-card__valor {
+  font-size: var(--texto-3xl);
+  font-weight: var(--peso-negrito);
+  font-variant-numeric: tabular-nums;
+}
+
+.tela-indicadores__graficos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--espaco-5);
+}
+
+.grafico-card {
+  padding: var(--espaco-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+}
+
+.grafico-card h3 {
+  font-size: var(--texto-md);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-secundario);
+}
+
+.grafico-card__area {
+  position: relative;
+  height: 260px;
+}
+
+@media (max-width: 900px) {
+  .tela-indicadores__kpis { grid-template-columns: repeat(2, 1fr); }
+}

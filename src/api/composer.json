@@ -1,0 +1,14 @@
+{
+    "name": "vale/trocadeturno",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "TrocaDeTurno\\": "./"
+        }
+    },
+    "authors": [
+        {
+            "name": "Enzo Rufino"
+        }
+    ]
+}
