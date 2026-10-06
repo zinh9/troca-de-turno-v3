@@ -20,7 +20,26 @@ final class ApresentacaoRepository
             JOIN empregado e ON a.id_empregado = e.id_empregado
             ORDER BY a.data_hora_apresentacao, e.cargo DESC');
         $stmt->execute();
-        return $stmt->fetchAll(); 
+        $result = $stmt->fetchAll(); 
+
+        if (!$result) {
+            return [];
+        }
+
+        $apresentacoes = [];
+
+        foreach ($result as $row) {
+            $apresentacoes[] = new Apresentacao(
+                idApresentacao: (int) $row['id_apresentacao'],
+                dataHoraApresentacao: new \DateTimeImmutable($row['data_hora_apresentacao']),
+                idEmpregado: (int) $row['id_empregado'],
+                idLocal: (int) $row['id_local'],
+                status: $row['status'],
+                idJustificativa: $row['id_justificativa'] ?? null,
+            );
+        }
+
+        return $apresentacoes;
     }
 
     public function listarTodasApresentacoesTurno(): array
@@ -134,15 +153,16 @@ final class ApresentacaoRepository
         );
     }
 
-    public function registrar(int $idEmpregado, int $idLocal): void
+    public function registrar(int $idEmpregado, int $idLocal, string $status): void
     {
         $stmt = $this->conn->pdo()->prepare(
-            'INSERT INTO apresentacao (data_hora_apresentacao, id_empregado, id_local) 
-            VALUES (SYSDATETIME(), :idEmpregado, :idLocal)'
+            'INSERT INTO apresentacao (data_hora_apresentacao, id_empregado, id_local, status) 
+            VALUES (SYSDATETIME(), :idEmpregado, :idLocal, :status)'
         );
         $stmt->execute([
             'idEmpregado' => $idEmpregado,
-            'idLocal' => $idLocal
+            'idLocal' => $idLocal,
+            'status' => $status
         ]);
     }
 

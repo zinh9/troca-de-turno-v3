@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace TrocaDeTurno\Services;
 
-use TrocaDeTurno\Entities\Empregado;
-use TrocaDeTurno\Entities\HorarioReferencia;
 use TrocaDeTurno\Repositories\HorarioReferenciaRepository;
 
 final class HorarioReferenciaService
@@ -14,17 +12,17 @@ final class HorarioReferenciaService
         private readonly HorarioReferenciaRepository $horarioReferenciaRepository
     ){}
 
-    public function estaAtrasadoChegada(int $idTurno, int $idLocal): bool
+    public function estaAtrasadoChegada(int $idLocal, int $idTurno): bool
     {
-        $horarioChegada = $this->horarioReferenciaRepository->buscarPorLocalETurno($idTurno, $idLocal)->dataHoraReferenciaChegada;
+        $horarioChegada = $this->horarioReferenciaRepository->buscarPorLocalETurno(idLocal: $idLocal, idTurno: $idTurno)->dataHoraReferenciaChegada;
         $agora = new \DateTimeImmutable();
 
         return $agora > $horarioChegada;
     }
 
-    public function estaAtrasadoSaida(int $idTurno, int $idLocal): bool
+    public function estaAtrasadoSaida(int $idLocal, int $idTurno): bool
     {
-        $horarioSaida = $this->horarioReferenciaRepository->buscarPorLocalETurno($idTurno, $idLocal)->dataHoraReferenciaSaida;
+        $horarioSaida = $this->horarioReferenciaRepository->buscarPorLocalETurno(idLocal: $idLocal, idTurno: $idTurno)->dataHoraReferenciaSaida;
         $agora = new \DateTimeImmutable();
 
         return $agora > $horarioSaida;

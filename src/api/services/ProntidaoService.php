@@ -43,7 +43,6 @@ final class ProntidaoService
 
     public function obterProntidoes(): array
     {
-        var_dump($this->verificarTempoProntidaoAtraso($this->obterApresentacao(24)->dataHoraApresentacao));
         return $this->prontidaoRepository->listarTodos();
     }
 

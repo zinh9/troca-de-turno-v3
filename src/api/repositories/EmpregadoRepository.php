@@ -53,16 +53,16 @@ final class EmpregadoRepository
         );
 
         return new Empregado(
-            (int) $row['id_empregado'],
-            $row['nome'],
-            $row['matricula'],
-            $row['cargo'],
-            $row['turno'],
-            ($row['data_hora_ultima_atualizacao'] !== null
+            idEmpregado: (int) $row['id_empregado'],
+            nome: $row['nome'],
+            matricula: $row['matricula'],
+            cargo: $row['cargo'],
+            turno: $row['turno'],
+            dataHoraUltimaAtualizacao: ($row['data_hora_ultima_atualizacao'] !== null
             ? new \DateTimeImmutable($row['data_hora_ultima_atualizacao'])
             : null),
-            $supervisao->idSupervisao,
-            $turno->idTurno
+            idSupervisao: $supervisao->idSupervisao,
+            idTurno: $turno->idTurno
         );
     }
 
@@ -99,14 +99,16 @@ final class EmpregadoRepository
             );
 
             $empregado = new Empregado(
-                (int) $row['id_empregado'],
-                $row['nome'],
-                $row['matricula'],
-                $row['cargo'],
-                $row['turno'],
-                new \DateTimeImmutable($row['data_hora_ultima_atualizacao']),
-                $supervisao->idSupervisao,
-                $turno->idTurno
+                idEmpregado: (int) $row['id_empregado'],
+                nome: $row['nome'],
+                matricula: $row['matricula'],
+                cargo: $row['cargo'],
+                turno: $row['turno'],
+                dataHoraUltimaAtualizacao: ($row['data_hora_ultima_atualizacao'] !== null
+                ? new \DateTimeImmutable($row['data_hora_ultima_atualizacao'])
+                : null),
+                idSupervisao: $supervisao->idSupervisao,
+                idTurno: $turno->idTurno
             );
 
             $empregados[] = $empregado;

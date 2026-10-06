@@ -17,7 +17,7 @@ final class ApresentacaoController
         $matricula = $_GET['matricula'] ?? '';
         $idLocal = (int) ($_GET['id-loc'] ?? 0);
 
-        if (empty($matricula) && empty($local)) {
+        if (empty($matricula) && empty($idLocal)) {
             http_response_code(400);
 
             echo json_encode([

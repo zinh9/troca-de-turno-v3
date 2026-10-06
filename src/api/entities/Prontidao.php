@@ -20,9 +20,8 @@ final readonly class Prontidao
     {
         return [
             'idProntidao' => $this->idProntidao,
-            'dataHoraProntidao' => $this->dataHoraProntidao->format('Y-m-d H:i:s'),
-            'dataHoraChamadaCpt' => $this->dataHoraChamadaCpt
-                ->format('Y-m-d H:i:s'),
+            'dataHoraProntidao' => $this->dataHoraProntidao,
+            'dataHoraChamadaCpt' => $this->dataHoraChamadaCpt,
             'status' => $this->status,
             'idApresentacao' => $this->idApresentacao,
             'idJustificativa' => $this->idJustificativa

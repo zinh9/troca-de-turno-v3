@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace TrocaDeTurno\Entities;
 
-use TrocaDeTurno\Enums\StatusApresentacao;
-
 final readonly class Apresentacao
 {
     public function __construct(

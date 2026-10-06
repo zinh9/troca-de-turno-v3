@@ -54,7 +54,7 @@ final class ApresentacaoService
                 "Empregado já realizou apresentação hoje."
             );
         }
-        $status = $this->horarioReferenciaService->estaAtrasadoChegada($empregado->idTurno, $idLocal)
+        $status = $this->horarioReferenciaService->estaAtrasadoChegada(idLocal: $idLocal, idTurno: $empregado->idTurno)
             ? StatusApresentacao::APRESENTADO_ATRASADO
             : StatusApresentacao::APRESENTADO;
         
@@ -62,6 +62,7 @@ final class ApresentacaoService
         $this->apresentacaoRepository->registrar(
             idEmpregado: $empregado->idEmpregado,
             idLocal: $idLocal,
+            status: $status->value
         );
     }
 

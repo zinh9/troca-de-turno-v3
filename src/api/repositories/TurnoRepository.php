@@ -1,5 +1,7 @@
 <?php
 
+namespace TrocaDeTurno\Repositories;
+
 use TrocaDeTurno\Data\Connection;
 
 final class TurnoRepository {

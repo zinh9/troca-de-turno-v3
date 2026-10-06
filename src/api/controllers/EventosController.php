@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace trocadeturno\controllers;
+namespace TrocaDeTurno\Controllers;
 
-use trocadeturno\services\EventoPublisherInterface;
+use TrocaDeTurno\Services\EventoPublisherInterface;
 
 final class EventosController
 {
-    public function __construct(private readonly EventoPulisherInterface $eventoPublisher)
+    public function __construct(private readonly EventoPublisherInterface $eventoPublisher)
     {}
 
     public function atender(string $supervisao, ?string $local): void
@@ -21,7 +21,7 @@ final class EventosController
         set_time_limit(0);
         ignore_user_abort(false);
 
-        while (!connection_aborded()) {
+        while (!connection_aborted()) {
             $mudou = $this->eventoPublisher->aguardarMudanca($supervisao, $local, timeoutSegundos: 30);
 
             if ($mudou) {
