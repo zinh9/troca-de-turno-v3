@@ -55,7 +55,7 @@ final class LocalRepository
         $locais = [];
 
         foreach($linhas as $linha) {
-            $locais = $this->mapearLocal($linha);
+            $locais[] = $this->mapearLocal($linha);
         }
 
         return $locais;

@@ -35,7 +35,7 @@ final class ApresentacaoRepository
             'SELECT a.*
             FROM apresentacao a
             JOIN empregado e ON a.id_empregado = e.id_empregado
-            WHERE DATEDIFF(HOURS, a.data_hora_apresentacao, SYSDATETIME()) <= 13
+            WHERE DATEDIFF(MINUTE, a.data_hora_apresentacao, SYSDATETIME()) <= 780
             ORDER BY a.data_hora_apresentacao, e.cargo DESC');
         $stmt->execute();
         $linhas = $stmt->fetchAll();
@@ -81,10 +81,13 @@ final class ApresentacaoRepository
     public function buscarApresentacaoHojePorIdEmpregado(int $idEmpregado): ?Apresentacao
     {
         $stmt = $this->conn->pdo()->prepare(
-            'SELECT TOP 1 id_apresentacao
+            // Janela de 13h (780 min) em vez de "mesma data": assim o turno
+            // 18x06 não "esquece" a apresentação depois da meia-noite.
+            'SELECT TOP 1 *
             FROM apresentacao
             WHERE id_empregado = :idEmpregado
-            AND CAST(data_hora_apresentacao AS DATE) = CAST(SYSDATETIME() AS DATE)');
+            AND DATEDIFF(MINUTE, data_hora_apresentacao, SYSDATETIME()) <= 780
+            ORDER BY data_hora_apresentacao DESC');
 
         $stmt->execute([
             'idEmpregado' => $idEmpregado
@@ -98,10 +101,12 @@ final class ApresentacaoRepository
         return $this->mapearApresentacao($linha);
     }
 
-    public function registrar(int $idEmpregado, int $idLocal, string $status): void
+    /** Grava e DEVOLVE o id novo (OUTPUT INSERTED é o jeito do SQL Server). */
+    public function registrar(int $idEmpregado, int $idLocal, string $status): int
     {
         $stmt = $this->conn->pdo()->prepare(
-            'INSERT INTO apresentacao (data_hora_apresentacao, id_empregado, id_local, status) 
+            'INSERT INTO apresentacao (data_hora_apresentacao, id_empregado, id_local, status)
+            OUTPUT INSERTED.id_apresentacao
             VALUES (SYSDATETIME(), :idEmpregado, :idLocal, :status)'
         );
         $stmt->execute([
@@ -109,6 +114,47 @@ final class ApresentacaoRepository
             'idLocal' => $idLocal,
             'status' => $status
         ]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Todas as apresentações "ativas" (últimas 13h) de uma supervisão.
+     * $idLocal = null  -> CCP (todos os locais da supervisão)
+     * $idLocal = 7     -> totem/painel de um local só
+     * @return array<Apresentacao>
+     */
+    public function listarAtivasPorSupervisao(int $idSupervisao, ?int $idLocal): array
+    {
+        $sql = 'SELECT a.*
+            FROM apresentacao a
+            JOIN local l ON l.id_local = a.id_local
+            WHERE l.id_supervisao = :idSupervisao
+            AND DATEDIFF(MINUTE, a.data_hora_apresentacao, SYSDATETIME()) <= 780';
+        $params = ['idSupervisao' => $idSupervisao];
+
+        if ($idLocal !== null) {
+            $sql .= ' AND a.id_local = :idLocal';
+            $params['idLocal'] = $idLocal;
+        }
+
+        $stmt = $this->conn->pdo()->prepare($sql . ' ORDER BY a.data_hora_apresentacao');
+        $stmt->execute($params);
+
+        return $this->mapearTodasApresentacoes($stmt->fetchAll());
+    }
+
+    /** Tamanho da equipe do local = quantos se apresentaram lá nas últimas 13h. */
+    public function contarAtivasPorLocal(int $idLocal): int
+    {
+        $stmt = $this->conn->pdo()->prepare(
+            'SELECT COUNT(*) FROM apresentacao
+            WHERE id_local = :idLocal
+            AND DATEDIFF(MINUTE, data_hora_apresentacao, SYSDATETIME()) <= 780'
+        );
+        $stmt->execute(['idLocal' => $idLocal]);
+
+        return (int) $stmt->fetchColumn();
     }
 
     public function atualizarStatus(int $idApresentacao, string $novoStatus, ?int $idJustificativa): void
@@ -134,7 +180,7 @@ final class ApresentacaoRepository
             idEmpregado: (int) $linha['id_empregado'],
             idLocal: (int) $linha['id_local'],
             status: $linha['status'] ?? '',
-            idJustificativa: (int) $linha['id_justificativa'] ?? null,
+            idJustificativa: $linha['id_justificativa'] !== null ? (int) $linha['id_justificativa'] : null,
         );
     }
 

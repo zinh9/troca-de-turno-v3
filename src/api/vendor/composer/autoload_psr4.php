@@ -6,5 +6,12 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'TrocaDeTurno\\' => array($baseDir . '/'),
+    'TrocaDeTurno\\Services\\' => array($baseDir . '/services'),
+    'TrocaDeTurno\\Repositories\\' => array($baseDir . '/repositories'),
+    'TrocaDeTurno\\Events\\' => array($baseDir . '/events'),
+    'TrocaDeTurno\\Enums\\' => array($baseDir . '/enums'),
+    'TrocaDeTurno\\Entities\\' => array($baseDir . '/entities'),
+    'TrocaDeTurno\\Data\\' => array($baseDir . '/data'),
+    'TrocaDeTurno\\Controllers\\' => array($baseDir . '/controllers'),
+    'TrocaDeTurno\\Container\\' => array($baseDir . '/container'),
 );

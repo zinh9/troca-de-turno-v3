@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace trocadeturno\events;
+namespace TrocaDeTurno\Events;
 
 final readonly class ProntidaoRegistradaEvent
 {

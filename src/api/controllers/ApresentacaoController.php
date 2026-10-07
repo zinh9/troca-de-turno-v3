@@ -4,57 +4,45 @@ declare(strict_types=1);
 
 namespace TrocaDeTurno\Controllers;
 
-use TrocaDeTurno\Entities\Apresentacao;
 use TrocaDeTurno\Services\ApresentacaoService;
 
+/** Controller fino: lê parâmetros -> chama o service -> devolve array. Zero regra aqui. */
 final class ApresentacaoController
 {
     public function __construct(private readonly ApresentacaoService $apresentacaoService)
     {}
 
-    public function registrar(): void
+    /** POST /api/apresentacao  {matricula, idLocal, confirmarSupervisao?, confirmarTurno?} */
+    public function registrar(): array
     {
-        $matricula = $_GET['matricula'] ?? '';
-        $idLocal = (int) ($_GET['id-loc'] ?? 0);
+        $d = Requisicao::dados();
 
-        if (empty($matricula) && empty($idLocal)) {
-            http_response_code(400);
+        $resultado = $this->apresentacaoService->registrarApresentacao(
+            matricula: Requisicao::texto($d, 'matricula'),
+            idLocal: Requisicao::inteiro($d, 'idLocal'),
+            confirmouSupervisao: Requisicao::booleano($d, 'confirmarSupervisao'),
+            confirmouTurno: Requisicao::booleano($d, 'confirmarTurno'),
+        );
 
-            echo json_encode([
-                'success' => false,
-                'message' => 'Parâmetro matricula e local é obrigatório.'
-            ]);
-
-            return;
-        }
-
-        $this->apresentacaoService->registrarApresentacao($matricula, $idLocal);
+        return ['success' => true] + $resultado;
     }
 
-    public function buscarPorId(): ?Apresentacao
+    /** POST /api/apresentacao/justificativa  {idApresentacao, idJustificativa} */
+    public function justificar(): array
     {
-        header('Content-Type: application/json');
+        $d = Requisicao::dados();
 
-        $idApresentacao = (int) ($_GET['id-apresentacao'] ?? 0);
+        $this->apresentacaoService->justificarAtraso(
+            Requisicao::inteiro($d, 'idApresentacao'),
+            Requisicao::inteiro($d, 'idJustificativa'),
+        );
 
-        if (empty($idApresentacao)) { 
-            http_response_code(400);
-
-            echo json_encode([
-                'success' => false,
-                'message' => 'Parâmetro matricula e local é obrigatório.'
-            ]);
-
-            return null;
-        }
-
-        return $this->apresentacaoService->obterApresentacaoPorId($idApresentacao);
+        return ['success' => true, 'status' => 'OK'];
     }
 
+    /** GET /api/apresentacoes (debug) */
     public function listar(): array
     {
-        header('Content-Type: application/json');
-
-        return $this->apresentacaoService->obterApresentacoes();
+        return array_map(fn($a) => $a->paraArray(), $this->apresentacaoService->obterApresentacoes());
     }
 }

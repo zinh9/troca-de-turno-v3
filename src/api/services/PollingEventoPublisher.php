@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace trocadeturno\services;
+namespace TrocaDeTurno\Services;
 
 use TrocaDeTurno\Data\Connection;
 

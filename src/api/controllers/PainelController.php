@@ -11,26 +11,27 @@ final class PainelController
     public function __construct(private readonly PainelService $painelService)
     {}
 
+    /**
+     * GET /api/painel?idSupervisao=1&idLocal=7   (totem)
+     * GET /api/painel?idSupervisao=1             (CCP: todos os locais)
+     */
     public function obter(): array
     {
-        $idSupervisao = (int) $_GET['id-supervisao'];
-        $idLocal = (int) $_GET['id-local'];
+        $d = Requisicao::dados();
+        $idSupervisao = Requisicao::inteiro($d, 'idSupervisao');
+        $idLocal = Requisicao::inteiroOpcional($d, 'idLocal');
 
-        if (empty($idSupervisao) || $idSupervisao === 0) {
-            http_response_code(400);
-            return ['success' => false, 'message' => 'Parametro vazio ou 0'];
-        }
-
-        $painel = $this->painelService->montarPainel(idSupervisao: $idSupervisao, idLocal: $idLocal);
+        $painel = $this->painelService->montarPainel($idSupervisao, $idLocal);
+        $agora = (new \DateTimeImmutable())->format('Y-m-d\TH:i:s');
 
         return [
             'success' => true,
             'info' => [
                 'emManutencao' => false,
-                'ultimaAtualizacao' => (new \DateTimeImmutable())->format('Y-m-d\TH:i:s'),
-                'serverTime' => (new \DateTimeImmutable())->format('Y-m-d\TH:i:s'),
+                'ultimaAtualizacao' => $agora,
+                'serverTime' => $agora,
                 'supervisao' => $idSupervisao,
-                'local' => $idLocal
+                'local' => $idLocal,
             ],
             'empregados' => $painel['empregados'],
         ];

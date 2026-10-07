@@ -26,7 +26,7 @@ final readonly class Empregado
             'matricula' => $this->matricula,
             'cargo' => $this->cargo,
             'turno' => $this->turno,
-            'dataHoraUltimaAtualizacao' => $this->dataHoraUltimaAtualizacao,
+            'dataHoraUltimaAtualizacao' => $this->dataHoraUltimaAtualizacao?->format('Y-m-d\TH:i:s'),
             'idSupervisao' => $this->idSupervisao,
             'idTurno' => $this->idTurno
         ];

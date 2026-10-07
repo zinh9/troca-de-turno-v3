@@ -2,171 +2,72 @@
 
 declare(strict_types=1);
 
-//require __DIR__ . '/../vendor/autoload.php';
-
-use TrocaDeTurno\Container\Container;
-
-use TrocaDeTurno\Controllers\EventosController;
-use TrocaDeTurno\Controllers\JustificativaController;
-use TrocaDeTurno\Controllers\ProntidaoController;
-
-use TrocaDeTurno\Data\Connection;
-
-use TrocaDeTurno\Events\EventDispatcher;
-use TrocaDeTurno\Events\ProntidaoRegistradaEvent;
-
-use TrocaDeTurno\Repositories\JustificativaRepository;
-use TrocaDeTurno\Repositories\ProntidaoRepository;
-
-use TrocaDeTurno\Services\JustificativaService;
-use TrocaDeTurno\Services\PollingEventoPublisher;
-use TrocaDeTurno\Services\ProntidaoService;
-
-require_once '../container/Container.php';
-require_once '../controllers/EventosController.php';
-require_once '../controllers/JustificativaController.php';
-require_once '../controllers/ProntidaoController.php';
-require_once '../data/Connection.php';
-require_once '../events/EventDispatcher.php';
-require_once '../events/ProntidaoRegistradaEvent.php';
-require_once '../repositories/JustificativaRepository.php';
-require_once '../repositories/ProntidaoRepository.php';
-require_once '../services/JustificativaService.php';
-require_once '../services/PollingEventoPublisher.php';
-require_once '../services/ProntidaoService.php';
-
 /**
- * index.php — o "app.js" deste back-end. Só faz fiação: registra as
- * dependências no Container e as rotas no FastRoute. Nenhuma lógica de
- * negócio deve morar aqui — se você se pegar escrevendo um `if`
- * complicado neste arquivo, ele pertence a algum Service.
+ * index.php — a "recepção" do back-end: recebe a URL e entrega pro controller certo.
+ * NENHUMA regra de negócio aqui.
+ *
+ * Rodar (na pasta src/api):
+ *   set PHP_CLI_SERVER_WORKERS=4          (Windows; o SSE segura 1 worker enquanto aberto)
+ *   php -S localhost:8000 -t controllers controllers/index.php
+ *
+ * Testar no navegador (tudo aceita GET + query-string):
+ *   /api/painel?idSupervisao=1&idLocal=7
+ *   /api/apresentacao?matricula=123456&idLocal=7
+ *   /api/prontidao?idApresentacao=10
  */
 
-// ---- 1. Container: registra as dependências (equivalente ao app.js) ----
-$container = new Container();
+use TrocaDeTurno\Controllers\EventosController;
 
-$container->registrarSingleton('conexaoSql', fn() => new Connection(
-    host: 'localhost',
-    database: 'troca_de_turno',
-));
+require __DIR__ . '/../bootstrap.php';
 
-$container->registrarSingleton('dispatcher', fn() => new EventDispatcher());
+/** @var \TrocaDeTurno\Container\Container $container */
+$container = require __DIR__ . '/../container/dependencias.php';
 
-// Troque esta linha por RedisEventoPublisher quando/se Redis entrar
-// em cena — nenhum outro arquivo muda por causa disso.
-$container->registrarSingleton(
-    'eventoPublisher',
-    fn(Container $c) => new PollingEventoPublisher($c->resolver('conexaoSql')),
-);
+// TODO(Zenzo): em produção, restrinja os POSTs a $metodo === 'POST'. Em desenvolvimento
+// aceitamos GET também para você testar escrevendo a URL no navegador.
+const PERMITIR_GET_NAS_ESCRITAS = true;
 
-$container->registrarSingleton(
-    'justificativaRepository',
-    fn(Container $c) => new JustificativaRepository($c->resolver('conexaoSql')),
-);
-$container->registrarSingleton(
-    'justificativaService',
-    fn(Container $c) => new JustificativaService($c->resolver('justificativaRepository')),
-);
-
-$container->registrarSingleton(
-    'prontidaoRepository',
-    fn(Container $c) => new ProntidaoRepository($c->resolver('conexaoSql')),
-);
-$container->registrarSingleton(
-    'prontidaoService',
-    fn(Container $c) => new ProntidaoService($c->resolver('prontidaoRepository'), $c->resolver('dispatcher')),
-);
-
-// ---- 2. Liga o evento de domínio ao publicador (a "cola" do padrão orientado a eventos) ----
-$container->resolver('dispatcher')->inscrever(
-    ProntidaoRegistradaEvent::class,
-    fn(ProntidaoRegistradaEvent $evento) => $container->resolver('eventoPublisher')
-        ->publicar($evento->supervisao, $evento->local),
-);
-
-// ---- 3. Rotas (equivalente ao router.js, mas HTTP de verdade) ----
-/**$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
-    $r->addRoute('GET', '/api/eventos', 'eventos');
-    $r->addRoute('GET', '/api/justificativas', 'justificativas');
-    $r->addRoute('POST', '/api/prontidao/justificativa', 'prontidao.justificativa');
-});*/
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $metodo = $_SERVER['REQUEST_METHOD'];
+$escrita = PERMITIR_GET_NAS_ESCRITAS ? in_array($metodo, ['GET', 'POST'], true) : $metodo === 'POST';
 
-/**$rotaInfo = $dispatcher->dispatch($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+header('Access-Control-Allow-Origin: *'); // TODO(Zenzo): trocar pelo domínio do front em produção
 
-if ($rotaInfo[0] !== FastRoute\Dispatcher::FOUND) {
+try {
+    // SSE não é JSON: tem o próprio formato, então trata antes.
+    if ($uri === '/api/eventos' && $metodo === 'GET') {
+        (new EventosController($container->resolver('eventoPublisher')))->atender(
+            (int) ($_GET['idSupervisao'] ?? 0),
+            isset($_GET['idLocal']) && $_GET['idLocal'] !== '' ? (int) $_GET['idLocal'] : null,
+        );
+        exit;
+    }
+
+    header('Content-Type: application/json; charset=utf-8');
+
+    $resposta = match (true) {
+        $uri === '/api/painel' && $metodo === 'GET' => $container->resolver('painelController')->obter(),
+        $uri === '/api/justificativas' && $metodo === 'GET' => $container->resolver('justificativaController')->listar(),
+        $uri === '/api/apresentacao' && $escrita => $container->resolver('apresentacaoController')->registrar(),
+        $uri === '/api/apresentacao/justificativa' && $escrita => $container->resolver('apresentacaoController')->justificar(),
+        $uri === '/api/prontidao' && $escrita => $container->resolver('prontidaoController')->registrar(),
+        $uri === '/api/ccp/chamada' && $escrita => $container->resolver('prontidaoController')->acionarRadio(),
+        default => throw new \DomainException('Rota não encontrada', 404),
+    };
+
+    echo json_encode($resposta, JSON_UNESCAPED_UNICODE);
+
+} catch (\DomainException $e) {
     http_response_code(404);
-    echo json_encode(['success' => false, 'mensagem' => 'Rota não encontrada']);
-    exit;
-}
-
-[, $nomeRota] = $rotaInfo;
-header('Content-Type: application/json');
-
-match ($nomeRota) {
-    'eventos' => (function () use ($container) {
-        $controller = new EventosController($container->resolver('eventoPublisher'));
-        $controller->atender($_GET['supervisao'] ?? '', $_GET['local'] ?? null);
-    })(),
-
-    'justificativas' => (function () use ($container) {
-        $controller = new JustificativaController($container->resolver('justificativaService'));
-        echo json_encode($controller->listar());
-    })(),
-
-    'prontidao.justificativa' => (function () use ($container) {
-        $controller = new ProntidaoController($container->resolver('prontidaoService'));
-        $corpo = json_decode(file_get_contents('php://input'), true) ?? [];
-        echo json_encode($controller->enviarJustificativa($corpo));
-    })(),
-};*/
-
-if ($uri === '/teste/conexao') {
-
-    $controller = new EventosController(
-        $container->resolver('eventoPublisher')
-    );
-
-    $controller->atender(
-        $_GET['supervisao'] ?? '',
-        $_GET['local'] ?? null
-    );
-
-} elseif ($uri === '/api/justificativas' && $metodo === 'GET') {
-
-    $controller = new JustificativaController(
-        $container->resolver('justificativaService')
-    );
-
-    echo json_encode(
-        $controller->listar()
-    );
-
-} elseif (
-    $uri === '/api/prontidao/justificativa'
-    && $metodo === 'POST'
-) {
-
-    $controller = new ProntidaoController(
-        $container->resolver('prontidaoService')
-    );
-
-    $corpo = json_decode(
-        file_get_contents('php://input'),
-        true
-    ) ?? [];
-
-    echo json_encode(
-        $controller->enviarJustificativa($corpo)
-    );
-
-} else {
-
-    http_response_code(404);
-
-    echo json_encode([
-        'success' => false,
-        'mensagem' => 'Rota não encontrada'
-    ]);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+} catch (\InvalidArgumentException $e) {      // dado faltando/errado  -> 400
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+} catch (\RuntimeException $e) {              // regra de negócio violada -> 409
+    http_response_code(409);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+} catch (\Throwable $e) {                     // bug/banco fora -> 500
+    http_response_code(500);
+    // TODO(Zenzo): em produção NÃO devolva $e->getMessage(); grave em log.
+    echo json_encode(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }

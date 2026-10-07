@@ -7,16 +7,51 @@ namespace Composer\Autoload;
 class ComposerStaticInit74b49efa1b4471da8664e1130ce5479b
 {
     public static $prefixLengthsPsr4 = array (
-        'T' =>
+        'T' => 
         array (
-            'TrocaDeTurno\\' => 13,
+            'TrocaDeTurno\\Services\\' => 22,
+            'TrocaDeTurno\\Repositories\\' => 26,
+            'TrocaDeTurno\\Events\\' => 20,
+            'TrocaDeTurno\\Enums\\' => 19,
+            'TrocaDeTurno\\Entities\\' => 22,
+            'TrocaDeTurno\\Data\\' => 18,
+            'TrocaDeTurno\\Controllers\\' => 25,
+            'TrocaDeTurno\\Container\\' => 23,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'TrocaDeTurno\\' =>
+        'TrocaDeTurno\\Services\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/',
+            0 => __DIR__ . '/../..' . '/services',
+        ),
+        'TrocaDeTurno\\Repositories\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/repositories',
+        ),
+        'TrocaDeTurno\\Events\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/events',
+        ),
+        'TrocaDeTurno\\Enums\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/enums',
+        ),
+        'TrocaDeTurno\\Entities\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/entities',
+        ),
+        'TrocaDeTurno\\Data\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/data',
+        ),
+        'TrocaDeTurno\\Controllers\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/controllers',
+        ),
+        'TrocaDeTurno\\Container\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/container',
         ),
     );
 

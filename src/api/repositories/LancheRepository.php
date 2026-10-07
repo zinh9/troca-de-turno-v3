@@ -34,6 +34,22 @@ final class LancheRepository
         )->execute(['idApresentacao' => $idApresentacao, 'escolha' => $escolha]);
     }
 
+    /** Quantas pessoas do local já escolheram essa janela nas últimas 13h (pra regra "metade"). */
+    public function contarEscolhasAtivasPorLocal(int $idLocal, string $escolha): int
+    {
+        $stmt = $this->conn->pdo()->prepare(
+            'SELECT COUNT(*)
+            FROM lanche l
+            JOIN apresentacao a ON a.id_apresentacao = l.id_apresentacao
+            WHERE a.id_local = :idLocal
+            AND l.escolha_intervalo_lanche = :escolha
+            AND DATEDIFF(MINUTE, a.data_hora_apresentacao, SYSDATETIME()) <= 780'
+        );
+        $stmt->execute(['idLocal' => $idLocal, 'escolha' => $escolha]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
     public function registrarInicioPatio(int $idLanche, ?int $idJustificativaInicio): void
     {
         $this->conn->pdo()->prepare(
@@ -56,9 +72,9 @@ final class LancheRepository
                 ? new \DateTimeImmutable($linha['data_hora_prontidao_lanche']) : null,
             idApresentacao: (int) $linha['id_apresentacao'],
             idJustificativaInicio: $linha['id_justificativa_inicio'] !== null
-                ? new \DateTimeImmutable($linha['id_justificativa_inicio']) : null,
+                ? (int) $linha['id_justificativa_inicio'] : null,
             idJustificativaProntidao: $linha['id_justificativa_prontidao'] !== null
-                ? new \DateTimeImmutable($linha['id_justificativa_prontidao']) : null,
+                ? (int) $linha['id_justificativa_prontidao'] : null,
         );
     }
 }

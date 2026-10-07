@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TrocaDeTurno\Repositories;
 
 use TrocaDeTurno\Data\Connection;
@@ -41,6 +43,15 @@ final class TurnoRepository {
         return $this->mapearTurno(linha: $linha);
     }
 
+    /** Ex.: buscarPorNome('06x18'). Usado quando o empregado confirma outro turno. */
+    public function buscarPorNome(string $nomeTurno): ?Turno {
+        $stmt = $this->conn->pdo()->prepare('SELECT * FROM turno WHERE turno = :turno');
+        $stmt->execute(['turno' => $nomeTurno]);
+        $linha = $stmt->fetch();
+
+        return $linha ? $this->mapearTurno($linha) : null;
+    }
+
     private function mapearTurno(array $linha): Turno
     {
         return new Turno(
@@ -53,10 +64,7 @@ final class TurnoRepository {
     {   
         $turnos = [];
         foreach($linhas as $linha) {
-            $turno = new Turno(
-                idTurno: (int) $linha['id_turno'],
-                turno: $linha['turno']
-            );
+            $turnos[] = $this->mapearTurno($linha);
         }
 
         return $turnos;

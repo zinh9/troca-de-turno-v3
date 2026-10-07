@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TrocaDeTurno\Controllers;
 
-use TrocaDeTurno\Entities\Prontidao;
 use TrocaDeTurno\Services\ProntidaoService;
 
 final class ProntidaoController
@@ -12,58 +11,31 @@ final class ProntidaoController
     public function __construct(private readonly ProntidaoService $prontidaoService)
     {}
 
-    /*
-    public function enviarJustificativa(array $corpoRequisicao): array
+    /** POST /api/prontidao  {idApresentacao, idJustificativa?, escolhaLanche?} */
+    public function registrar(): array
     {
-        $matricula = $corpoRequisicao['matricula'] ?? throw new \InvalidArgumentsException('matricula é obrigatoria');
-        $idJustificativa = (int) ($corpoRequisicao['idJustificativa'] ?? throw new \InvalidArgumentsException('idJustificativa é obrigatoria'));
+        $d = Requisicao::dados();
 
-        $this->service->registrarComJustificativa($matricula, $idJustificativa);
+        $resultado = $this->prontidaoService->registrarProntidao(
+            idApresentacao: Requisicao::inteiro($d, 'idApresentacao'),
+            idJustificativa: Requisicao::inteiroOpcional($d, 'idJustificativa'),
+            escolhaLanche: isset($d['escolhaLanche']) && $d['escolhaLanche'] !== '' ? (string) $d['escolhaLanche'] : null,
+        );
 
-
-        return ['success' => true];
-    }
-    */
-
-    public function registrar(): void
-    {
-        $idApresentacao = (int) ($_GET['id-apresentacao'] ?? 0);
-        $idJustificativa = $_GET['id-justificativa'] ?? null;
-
-        if (empty($idApresentacao)) {
-            http_response_code(400);
-
-            echo json_encode([
-                'success' => false,
-                'message' => 'Parâmetro id-apresentacao é obrigatório.'
-            ]);
-
-            return;
-        }
-
-        $this->prontidaoService->registrarProntidao($idApresentacao, $idJustificativa);
+        return ['success' => true] + $resultado;
     }
 
-    public function buscarPorId(): ?Prontidao
+    /** POST /api/ccp/chamada  {idApresentacao}  -> botão "ACIONAR VIA RÁDIO" */
+    public function acionarRadio(): array
     {
-        $idProntidao = (int) ($_GET['id-prontidao'] ?? 0);
+        $this->prontidaoService->acionarChamadaRadio(Requisicao::inteiro(Requisicao::dados(), 'idApresentacao'));
 
-        if (empty($idProntidao)) {
-            http_response_code(400);
-
-            echo json_encode([
-                'success' => false,
-                'message' => 'Parâmetro id-apresentacao é obrigatório.'
-            ]);
-
-            return null;
-        }
-
-        return $this->prontidaoService->obterPorId($idProntidao);
+        return ['success' => true, 'status' => 'OK'];
     }
 
+    /** GET /api/prontidoes (debug) */
     public function listarTodos(): array
     {
-        return $this->prontidaoService->obterProntidoes();
+        return array_map(fn($p) => $p->paraArray(), $this->prontidaoService->obterProntidoes());
     }
 }

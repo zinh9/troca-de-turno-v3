@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TrocaDeTurno\Controllers;
 
-use trocadeturno\services\JustificativaService;
+use TrocaDeTurno\Services\JustificativaService;
 
 final class JustificativaController
 {

@@ -11,7 +11,7 @@ final class EventosController
     public function __construct(private readonly EventoPublisherInterface $eventoPublisher)
     {}
 
-    public function atender(string $supervisao, ?string $local): void
+    public function atender(int $idSupervisao, ?int $idLocal): void
     {
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
@@ -22,7 +22,7 @@ final class EventosController
         ignore_user_abort(false);
 
         while (!connection_aborted()) {
-            $mudou = $this->eventoPublisher->aguardarMudanca($supervisao, $local, timeoutSegundos: 30);
+            $mudou = $this->eventoPublisher->aguardarMudanca($idSupervisao, $idLocal, timeoutSegundos: 30);
 
             if ($mudou) {
                 echo "event: jornada-atualizada\n";

@@ -73,16 +73,28 @@ final class EmpregadoRepository
         return $this->mapearTodosEmpregados($linhas);
     }
 
-    public function atualizarTurno(string $matricula, string $novoTurno): void
+    public function buscarPorId(int $idEmpregado): ?Empregado
     {
-        $sql = "
-            UPDATE troca_de_turno.dbo.empregado
-            SET turno = ?, data_hora_ultima_atualizacao = GETDATE()
-            WHERE matricula = ?
-        ";
+        $stmt = $this->conn->pdo()->prepare(
+            'SELECT e.*, t.turno
+            FROM empregado e
+            INNER JOIN turno t ON t.id_turno = e.id_turno
+            WHERE e.id_empregado = :idEmpregado'
+        );
+        $stmt->execute(['idEmpregado' => $idEmpregado]);
+        $linha = $stmt->fetch();
 
-        $stmt = $this->conn->pdo()->prepare($sql);
-        $stmt->execute([$novoTurno, $matricula]);
+        return $linha ? $this->mapearEmpregado($linha) : null;
+    }
+
+    /** A tabela empregado guarda o turno como id_turno (FK), então atualiza o ID. */
+    public function atualizarTurno(int $idEmpregado, int $idTurno): void
+    {
+        $this->conn->pdo()->prepare(
+            'UPDATE empregado
+            SET id_turno = :idTurno, data_hora_ultima_atualizacao = SYSDATETIME()
+            WHERE id_empregado = :idEmpregado'
+        )->execute(['idTurno' => $idTurno, 'idEmpregado' => $idEmpregado]);
     }
 
     public function listarPorSupervisaoELocal(int $idSupervisao, int $idLocal): ?array
@@ -116,7 +128,7 @@ final class EmpregadoRepository
             matricula: $linha['matricula'],
             cargo: $linha['cargo'],
             turno: $linha['turno'],
-            dataHoraUltimaAtualizacao: $linha['data_hora_ultima_atualizacao'] !== null
+            dataHoraUltimaAtualizacao: ($linha['data_hora_ultima_atualizacao'] ?? null) !== null
                 ? new \DateTimeImmutable($linha['data_hora_ultima_atualizacao']) : null,
             idSupervisao: (int) $linha['id_supervisao'],
             idTurno: (int) $linha['id_turno']
@@ -128,7 +140,7 @@ final class EmpregadoRepository
         $empregados = [];
 
         foreach($linhas as $linha) {
-            $empregados = $this->mapearEmpregado(linha: $linha);
+            $empregados[] = $this->mapearEmpregado(linha: $linha);
         }
 
         return $empregados;

@@ -11,10 +11,12 @@ final class HorarioReferenciaRepository
 {
     public function __construct(private readonly Connection $conn) {}
 
+    // TODO(Zenzo): confirme no SSMS os nomes REAIS das colunas (hora_referencia_chegada / hora_referencia_saida).
+    // Eu padronizei os dois métodos pra usar esses nomes (antes um usava data_hora_...).
     public function buscarPorLocalETurno(int $idLocal, int $idTurno): HorarioReferencia
     {
         $stmt = $this->conn->pdo()->prepare(
-            'SELECT * FROM troca_de_turno.dbo.horario_referecia
+            'SELECT * FROM troca_de_turno.dbo.horario_referencia
             WHERE id_local = :idLocal AND id_turno = :idTurno'
         );
         $stmt->execute(['idLocal' => $idLocal, 'idTurno' => $idTurno]);
@@ -36,17 +38,17 @@ final class HorarioReferenciaRepository
     public function buscarTodos(): array
     {
         $stmt = $this->conn->pdo()->query(
-            'SELECT * FROM troca_de_turno.dbo.horario_referecia'
+            'SELECT * FROM troca_de_turno.dbo.horario_referencia'
         );
         $rows = $stmt->fetchAll();
 
         return array_map(
             fn($row) => new HorarioReferencia(
-                idHorarioReferencia: (int) $row['id_horario_referecia'],
+                idHorarioReferencia: (int) $row['id_horario_referencia'],
                 idLocal: (int) $row['id_local'],
                 idTurno: (int) $row['id_turno'],
-                dataHoraReferenciaChegada: new \DateTimeImmutable($row['data_hora_referencia_chegada']),
-                dataHoraReferenciaSaida: new \DateTimeImmutable($row['data_hora_referencia_saida'])
+                dataHoraReferenciaChegada: new \DateTimeImmutable($row['hora_referencia_chegada']),
+                dataHoraReferenciaSaida: new \DateTimeImmutable($row['hora_referencia_saida'])
             ),
             $rows
         );
