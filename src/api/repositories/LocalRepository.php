@@ -19,8 +19,9 @@ final class LocalRepository
             FROM local
             ORDER BY local'
         );
-        
-        return $stmt->fetchAll();
+        $linhas = $stmt->fetchAll();
+
+        return $this->mapearTodosLocais($linhas);
     }
 
     public function buscarPorId(int $idLocal): ?Local
@@ -37,12 +38,26 @@ final class LocalRepository
             return null;
         }
 
-        $local = new Local(
-            (int) $linha['id_local'],
-            $linha['local'],
-            $linha['id_supervisao']
-        );
+        return $this->mapearLocal($linha);
+    }
 
-        return $local;
+    private function mapearLocal(array $linha): Local
+    {
+        return new Local(
+            idLocal: (int) $linha['id_local'],
+            local: $linha['local'],
+            idSupervisao: (int) $linha['id_supervisao']
+        );
+    }
+
+    private function mapearTodosLocais(array $linhas): array
+    {
+        $locais = [];
+
+        foreach($linhas as $linha) {
+            $locais = $this->mapearLocal($linha);
+        }
+
+        return $locais;
     }
 }

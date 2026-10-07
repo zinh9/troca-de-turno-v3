@@ -8,18 +8,20 @@ use TrocaDeTurno\Entities\Apresentacao;
 use TrocaDeTurno\Entities\Empregado;
 use TrocaDeTurno\Enums\StatusApresentacao;
 use TrocaDeTurno\Repositories\ApresentacaoRepository;
+use TrocaDeTurno\Repositories\LocalRepository;
 
 final class ApresentacaoService
 {
     public function __construct(
         private readonly ApresentacaoRepository $apresentacaoRepository,
+        private readonly LocalRepository $localRepository,
         private readonly HorarioReferenciaService $horarioReferenciaService,
         private readonly EmpregadoService $empregadoService
     ) {}
 
     function obterEmpregado(string $matricula): Empregado
     {
-        $empregado = $this->empregadoService->buscarEmpregadoPorMatricula($matricula);
+        $empregado = $this->empregadoService->obterEmpregadoPorMatricula($matricula);
 
         if (!$empregado) {
             throw new \InvalidArgumentException("Empregado com matrícula $matricula não encontrado.");
@@ -47,13 +49,27 @@ final class ApresentacaoService
 
     public function registrarApresentacao(string $matricula, int $idLocal): void {
 
-        $empregado = $this->obterEmpregado($matricula);
+        $empregado = $this->obterEmpregado(matricula: $matricula);
+        $local = $this->localRepository->buscarPorId(idLocal: $idLocal);
 
         if ($this->jaApresentouHoje($empregado->idEmpregado)) {
             throw new \RuntimeException(
                 "Empregado já realizou apresentação hoje."
             );
         }
+
+        if (!$this->empregadoService->verificarSupervisaoDiferente(idSupervisaoApresentacao: $local->idSupervisao, idSupervisaoOriginal: $empregado->idSupervisao)) {
+            throw new \RuntimeException(
+                "Você está se apresentando em uma supervisão diferente do seu cadastro."
+            );
+        }
+
+        if (!$this->empregadoService->verificarTurnoDiferente(turno: $empregado->turno)) {
+            throw new \RuntimeException(
+                "Você está se apresentando em turnos diferentes do seu cadastro."
+            );
+        }
+
         $status = $this->horarioReferenciaService->estaAtrasadoChegada(idLocal: $idLocal, idTurno: $empregado->idTurno)
             ? StatusApresentacao::APRESENTADO_ATRASADO
             : StatusApresentacao::APRESENTADO;

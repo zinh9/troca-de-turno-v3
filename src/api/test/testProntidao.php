@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 use TrocaDeTurno\Container\Container;
 use TrocaDeTurno\Controllers\ApresentacaoController;
+use TrocaDeTurno\Controllers\PainelController;
 use TrocaDeTurno\Controllers\ProntidaoController;
 use TrocaDeTurno\Data\Connection;
 use TrocaDeTurno\Repositories\ApresentacaoRepository;
 use TrocaDeTurno\Repositories\EmpregadoRepository;
 use TrocaDeTurno\Repositories\HorarioReferenciaRepository;
+use TrocaDeTurno\Repositories\LocalRepository;
 use TrocaDeTurno\Repositories\ProntidaoRepository;
 use TrocaDeTurno\Services\ApresentacaoService;
 use TrocaDeTurno\Services\EmpregadoService;
 use TrocaDeTurno\Services\HorarioReferenciaService;
+use TrocaDeTurno\Services\PainelService;
 use TrocaDeTurno\Services\ProntidaoService;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -24,6 +27,13 @@ $container->registrarSingleton(
     fn() => new Connection(
         host: 'localhost',
         database: 'troca_de_turno'
+    )
+);
+
+$container->registrarSingleton(
+    'localRepository',
+    fn(Container $c) => new LocalRepository(
+        $c->resolver('conexao')
     )
 );
 
@@ -73,6 +83,7 @@ $container->registrarSingleton(
     'apresentacaoService',
     fn(Container $c) => new ApresentacaoService(
         $c->resolver('apresentacaoRepository'),
+        $c->resolver('localRepository'),
         $c->resolver('horarioReferenciaService'),
         $c->resolver('empregadoService')
     )
@@ -100,12 +111,28 @@ $container->registrarSingleton(
     )
 );
 
+$container->registrarSingleton(
+    'painelService',
+    fn(Container $c) => new PainelService(
+        $c->resolver('empregadoRepository'),
+        $c->resolver('apresentacaoRepository'),
+        $c->resolver('prontidaoRepository')
+    )
+);
+
+$container->registrarSingleton(
+    'painelController',
+    fn(Container $c) => new PainelController(
+        $c->resolver('painelService')
+    )
+);
+
 header('Content-Type: application/json');
 
 echo json_encode(
     $container
-        ->resolver('prontidaoController')
-        ->listarTodos()
+        ->resolver('painelController')
+        ->obter()
 );
 
 exit;

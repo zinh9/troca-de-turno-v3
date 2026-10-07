@@ -8,11 +8,13 @@ use TrocaDeTurno\Data\Connection;
 use TrocaDeTurno\Repositories\ApresentacaoRepository;
 use TrocaDeTurno\Repositories\EmpregadoRepository;
 use TrocaDeTurno\Repositories\HorarioReferenciaRepository;
+use TrocaDeTurno\Repositories\LocalRepository;
 use TrocaDeTurno\Services\ApresentacaoService;
 use TrocaDeTurno\Services\EmpregadoService;
 use TrocaDeTurno\Services\HorarioReferenciaService;
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $container = new Container();
 
@@ -21,6 +23,13 @@ $container->registrarSingleton(
     fn() => new Connection(
         host: 'localhost',
         database: 'troca_de_turno'
+    )
+);
+
+$container->registrarSingleton(
+    'localRepository',
+    fn(Container $c) => new LocalRepository(
+        $c->resolver('conexao')
     )
 );
 
@@ -70,6 +79,7 @@ $container->registrarSingleton(
     'apresentacaoService',
     fn(Container $c) => new ApresentacaoService(
         $c->resolver('apresentacaoRepository'),
+        $c->resolver('localRepository'),
         $c->resolver('horarioReferenciaService'),
         $c->resolver('empregadoService')
     )
@@ -87,7 +97,7 @@ header('Content-Type: application/json');
 echo json_encode(
     $container
         ->resolver('apresentacaoController')
-        ->listar()
+        ->registrar()
 );
 
 exit;

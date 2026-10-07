@@ -36,37 +36,16 @@ final class EmpregadoRepository
         $stmt = $this->conn->pdo()->prepare($sql);
         $stmt->execute([$matricula]);
 
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $linha = $stmt->fetch();
 
-        if (!$row) {
+        if (!$linha) {
             return null;
         }
 
-        $supervisao = new Supervisao(
-            (int) $row['id_supervisao'],
-            $row['supervisao']
-        );
-
-        $turno = new Turno(
-            (int) $row['id_turno'],
-            $row['turno']
-        );
-
-        return new Empregado(
-            idEmpregado: (int) $row['id_empregado'],
-            nome: $row['nome'],
-            matricula: $row['matricula'],
-            cargo: $row['cargo'],
-            turno: $row['turno'],
-            dataHoraUltimaAtualizacao: ($row['data_hora_ultima_atualizacao'] !== null
-            ? new \DateTimeImmutable($row['data_hora_ultima_atualizacao'])
-            : null),
-            idSupervisao: $supervisao->idSupervisao,
-            idTurno: $turno->idTurno
-        );
+        return $this->mapearEmpregado($linha);
     }
 
-    public function listarTodos(): array
+    public function listarTodos(): ?array
     {
         $sql = "
             SELECT
@@ -85,39 +64,16 @@ final class EmpregadoRepository
         $stmt = $this->conn->pdo()->prepare($sql);
         $stmt->execute();
 
-        $empregados = [];
+        $linhas =  $stmt->fetchAll();
 
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $supervisao = new Supervisao(
-                (int) $row['id_supervisao'],
-                $row['supervisao']
-            );
-
-            $turno = new Turno(
-                (int) $row['id_turno'],
-                $row['turno']
-            );
-
-            $empregado = new Empregado(
-                idEmpregado: (int) $row['id_empregado'],
-                nome: $row['nome'],
-                matricula: $row['matricula'],
-                cargo: $row['cargo'],
-                turno: $row['turno'],
-                dataHoraUltimaAtualizacao: ($row['data_hora_ultima_atualizacao'] !== null
-                ? new \DateTimeImmutable($row['data_hora_ultima_atualizacao'])
-                : null),
-                idSupervisao: $supervisao->idSupervisao,
-                idTurno: $turno->idTurno
-            );
-
-            $empregados[] = $empregado;
+        if (!$linhas) {
+            return null;
         }
 
-        return $empregados;
+        return $this->mapearTodosEmpregados($linhas);
     }
 
-    public function atualizarTurno(string $matricula, string $novoTurno): bool
+    public function atualizarTurno(string $matricula, string $novoTurno): void
     {
         $sql = "
             UPDATE troca_de_turno.dbo.empregado
@@ -126,6 +82,55 @@ final class EmpregadoRepository
         ";
 
         $stmt = $this->conn->pdo()->prepare($sql);
-        return $stmt->execute([$novoTurno, $matricula]);
+        $stmt->execute([$novoTurno, $matricula]);
+    }
+
+    public function listarPorSupervisaoELocal(int $idSupervisao, int $idLocal): ?array
+    {
+        $stmt = $this->conn->pdo()->prepare(
+            'SELECT 
+                e.*,
+                t.turno,
+                s.supervisao AS supervisao_original
+            FROM empregado e
+            INNER JOIN supervisao s ON e.id_supervisao = s.id_supervisao
+            INNER JOIN turno t ON e.id_turno = t.id_turno
+            WHERE e.id_supervisao = :idSupervisao
+            '
+        );
+        $stmt->execute(['idSupervisao' => $idSupervisao]);
+        $linhas = $stmt->fetchAll();
+
+        if (!$linhas) {
+            return null;
+        }
+
+        return $this->mapearTodosEmpregados($linhas);
+    }
+
+    private function mapearEmpregado(array $linha): Empregado
+    {
+        return new Empregado(
+            idEmpregado: (int) $linha['id_empregado'],
+            nome: $linha['nome'],
+            matricula: $linha['matricula'],
+            cargo: $linha['cargo'],
+            turno: $linha['turno'],
+            dataHoraUltimaAtualizacao: $linha['data_hora_ultima_atualizacao'] !== null
+                ? new \DateTimeImmutable($linha['data_hora_ultima_atualizacao']) : null,
+            idSupervisao: (int) $linha['id_supervisao'],
+            idTurno: (int) $linha['id_turno']
+        );
+    }
+
+    private function mapearTodosEmpregados(array $linhas): array
+    {
+        $empregados = [];
+
+        foreach($linhas as $linha) {
+            $empregados = $this->mapearEmpregado(linha: $linha);
+        }
+
+        return $empregados;
     }
 }

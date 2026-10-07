@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace trocadeturno\services;
 
-require_once '../data/Connection.php';
-require_once 'EventoPublisherInterface.php';
+use TrocaDeTurno\Data\Connection;
 
 final class PollingEventoPublisher implements EventoPublisherInterface
 {
@@ -13,22 +12,22 @@ final class PollingEventoPublisher implements EventoPublisherInterface
     {
     }
 
-    public function publicar(string $supervisao, ?string $local): void
+    public function publicar(int $idSupervisao, ?int $idLocal): void
     {
         $this->conn->pdo()->prepare(
             'UPDATE empregado SET data_hora_ultima_atualizacao = SYSDATETIME()
-            WHERE id_supervisao = (SELECT id_supervisao FROM supervisao WHERE supervisao = :supervisao)'
-        )->execute(['supervisao' => $supervisao]);
+            WHERE id_supervisao = :idSupervisao'
+        )->execute(['idSupervisao' => $idSupervisao]);
     }
 
-    public function aguardarMudanca(string $supervisao, ?string $local, int $timeoutSegundos): bool
+    public function aguardarMudanca(int $idSupervisao, ?int $idLocal, int $timeoutSegundos): bool
     {
         $inicio = time();
-        $ultimoCarimbo = $this->buscarCarimbo($supervisao);
+        $ultimoCarimbo = $this->buscarCarimbo($idSupervisao);
 
         while (time() - $inicio < $timeoutSegundos) {
             sleep(1);
-            $carimboAtual = $this->buscarCarimbo($supervisao);
+            $carimboAtual = $this->buscarCarimbo($idSupervisao);
 
             if ($carimboAtual !== $ultimoCarimbo) {
                 return true;
@@ -38,15 +37,15 @@ final class PollingEventoPublisher implements EventoPublisherInterface
         return false;
     }
 
-    public function buscarCarimbo(string $supervisao): ?string
+    public function buscarCarimbo(int $idSupervisao): ?string
     {
         $stmt = $this->conn->pdo()->prepare(
             'SELECT MAX(e.data_hora_ultima_atualizacao) AS carimbo
             FROM empregado e
             JOIN supervisao s ON s.id_supervisao = e.id_supervisao
-            WHERE s.supervisao = :supervisao',
+            WHERE s.id_supervisao = :idSupervisao',
         );
-        $stmt->execute(['supervisao' => $supervisao]);
+        $stmt->execute(['idSupervisao' => $idSupervisao]);
         return $stmt->fetchColumn() ?: null;
     }
 }

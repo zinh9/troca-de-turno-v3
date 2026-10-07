@@ -10,11 +10,11 @@ use TrocaDeTurno\Repositories\EmpregadoRepository;
 final class EmpregadoService
 {
     public function __construct(
-        private readonly EmpregadoRepository $empregadoRepository
+        private readonly EmpregadoRepository $empregadoRepository,
     )
     {}
 
-    public function buscarEmpregadoPorMatricula(string $matricula): ?Empregado
+    public function obterEmpregadoPorMatricula(string $matricula): ?Empregado
     {
         return $this->empregadoRepository->buscarPorMatricula($matricula);
     }
@@ -22,6 +22,25 @@ final class EmpregadoService
     public function listarTodosEmpregados(): array
     {
         return $this->empregadoRepository->listarTodos();
+    }
+
+    public function verificarSupervisaoDiferente(int $idSupervisaoApresentacao, int $idSupervisaoOriginal): bool
+    {
+        return $idSupervisaoApresentacao <> $idSupervisaoOriginal;
+    }
+
+    public function verificarTurnoDiferente(string $turno): bool
+    {
+        $horaAgora = (new \DateTimeImmutable())->format('H:i');
+
+        return match ($turno) {
+            '05x17' => $horaAgora >= '04:45' && $horaAgora < '05:45',
+            '06x18' => $horaAgora >= '05:45' && $horaAgora < '11:40',
+            '12x00' => $horaAgora >= '11:40' && $horaAgora < '12:50',
+            '13x01' => $horaAgora >= '12:50' && $horaAgora < '16:50',
+            '18x06' => $horaAgora >= '16:50' || $horaAgora < '04:45',
+            default => false,
+        };
     }
 
     public function atualizarTurnoEmpregado(string $matricula, string $novoTurno): bool

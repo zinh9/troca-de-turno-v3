@@ -9,10 +9,10 @@ final readonly class Lanche
     public function __construct(
         public int $idLanche,
     
-        public ?string $dataHoraLanchePatio,
-        public ?string $dataHoraLancheCpt,
+        public ?\DateTimeImmutable $dataHoraLanchePatio,
+        public ?\DateTimeImmutable $dataHoraLancheCpt,
         public ?string $escolhaIntervaloLanche,
-        public ?string $dataHoraProntidaoLanche,
+        public ?\DateTimeImmutable $dataHoraProntidaoLanche,
     
         public int $idApresentacao,
     

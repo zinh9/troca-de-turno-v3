@@ -20,26 +20,13 @@ final class ApresentacaoRepository
             JOIN empregado e ON a.id_empregado = e.id_empregado
             ORDER BY a.data_hora_apresentacao, e.cargo DESC');
         $stmt->execute();
-        $result = $stmt->fetchAll(); 
+        $linhas = $stmt->fetchAll(); 
 
-        if (!$result) {
+        if (!$linhas) {
             return [];
         }
 
-        $apresentacoes = [];
-
-        foreach ($result as $row) {
-            $apresentacoes[] = new Apresentacao(
-                idApresentacao: (int) $row['id_apresentacao'],
-                dataHoraApresentacao: new \DateTimeImmutable($row['data_hora_apresentacao']),
-                idEmpregado: (int) $row['id_empregado'],
-                idLocal: (int) $row['id_local'],
-                status: $row['status'],
-                idJustificativa: $row['id_justificativa'] ?? null,
-            );
-        }
-
-        return $apresentacoes;
+        return $this->mapearTodasApresentacoes($linhas);
     }
 
     public function listarTodasApresentacoesTurno(): array
@@ -51,48 +38,26 @@ final class ApresentacaoRepository
             WHERE DATEDIFF(HOURS, a.data_hora_apresentacao, SYSDATETIME()) <= 13
             ORDER BY a.data_hora_apresentacao, e.cargo DESC');
         $stmt->execute();
-        $result = $stmt->fetchAll();
+        $linhas = $stmt->fetchAll();
 
-        if (!$result) {
+        if (!$linhas) {
             return [];
         }
 
-        $apresentacoes = [];
-
-        foreach ($result as $row) {
-            $apresentacoes[] = new Apresentacao(
-                idApresentacao: (int) $row['id_apresentacao'],
-                dataHoraApresentacao: new \DateTimeImmutable($row['data_hora_apresentacao']),
-                idEmpregado: (int) $row['id_empregado'],
-                idLocal: (int) $row['id_local'],
-                status: $row['status'],
-                idJustificativa: $row['id_justificativa'] ?? null,
-            );
-        }
-
-        return $apresentacoes;
+        return $this->mapearTodasApresentacoes($linhas);
     }
 
     public function buscarPorId(int $idApresentacao): ?Apresentacao
     {
         $stmt = $this->conn->pdo()->prepare('SELECT * FROM apresentacao WHERE id_apresentacao = :idApresentacao');
         $stmt->execute(['idApresentacao' => $idApresentacao]);
-        $result = $stmt->fetch();
+        $linha = $stmt->fetch();
 
-        if (!$result) {
+        if (!$linha) {
             return null;
         }
 
-        $apresentacao = new Apresentacao(
-            idApresentacao: (int) $result['id_apresentacao'],
-            dataHoraApresentacao: new \DateTimeImmutable($result['data_hora_apresentacao']),
-            idEmpregado: (int) $result['id_empregado'],
-            idLocal: (int) $result['id_local'],
-            status: $result['status'] ?? '',
-            idJustificativa: (int) $result['id_justificativa'] ?? null,
-        );
-
-        return $apresentacao;
+        return $this->mapearApresentacao($linha);
     }
 
     public function buscarApresentacoesPorIdEmpregado(int $idEmpregado): ?array
@@ -104,26 +69,13 @@ final class ApresentacaoRepository
             ORDER BY data_hora_apresentacao DESC'
         );
         $stmt->execute(['idEmpregado' => $idEmpregado]);
-        $result = $stmt->fetchAll();
+        $linhas = $stmt->fetchAll();
 
-        if (!$result) {
+        if (!$linhas) {
             return null;
         }
 
-        $apresentacoes =[];
-
-        foreach ($result as $row) {
-            $apresentacoes[] = new Apresentacao(
-                idApresentacao: (int) $row['id_apresentacao'],
-                dataHoraApresentacao: new \DateTimeImmutable($row['data_hora_apresentacao']),
-                idEmpregado: (int) $row['id_empregado'],
-                idLocal: (int) $row['id_local'],
-                status: $row['status'],
-                idJustificativa: $row['id_justificativa'] ?? null,
-            );
-        }
-
-        return $apresentacoes;
+        return $this->mapearTodasApresentacoes($linhas);
     }
 
     public function buscarApresentacaoHojePorIdEmpregado(int $idEmpregado): ?Apresentacao
@@ -137,20 +89,13 @@ final class ApresentacaoRepository
         $stmt->execute([
             'idEmpregado' => $idEmpregado
         ]);
-        $result = $stmt->fetch();
+        $linha = $stmt->fetch();
 
-        if (!$result) {
+        if (!$linha) {
             return null;
         }
 
-        return new Apresentacao(
-            idApresentacao: $result['id_apresentacao'],
-            dataHoraApresentacao: new \DateTimeImmutable($result['data_hora_apresentacao']),
-            idEmpregado: $result['id_empregado'],
-            idLocal: $result['id_local'],
-            status: $result['status'] ?? '',
-            idJustificativa: (int) $result['id_justificativa'] ?? null,
-        );
+        return $this->mapearApresentacao($linha);
     }
 
     public function registrar(int $idEmpregado, int $idLocal, string $status): void
@@ -179,5 +124,28 @@ final class ApresentacaoRepository
             'idJustificativa' => $idJustificativa,
             'idApresentacao' => $idApresentacao
         ]);
+    }
+
+    private function mapearApresentacao(array $linha): Apresentacao
+    {
+        return new Apresentacao(
+            idApresentacao: (int) $linha['id_apresentacao'],
+            dataHoraApresentacao: new \DateTimeImmutable($linha['data_hora_apresentacao']),
+            idEmpregado: (int) $linha['id_empregado'],
+            idLocal: (int) $linha['id_local'],
+            status: $linha['status'] ?? '',
+            idJustificativa: (int) $linha['id_justificativa'] ?? null,
+        );
+    }
+
+    private function mapearTodasApresentacoes(array $linhas): array
+    {
+        $apresentacoes = [];
+
+        foreach($linhas as $linha) {
+            $apresentacoes[] = $this->mapearApresentacao($linha);
+        }
+
+        return $apresentacoes;
     }
 }
