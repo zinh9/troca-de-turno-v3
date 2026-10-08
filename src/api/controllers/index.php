@@ -28,6 +28,14 @@ $container = require __DIR__ . '/../container/dependencias.php';
 const PERMITIR_GET_NAS_ESCRITAS = true;
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Funciona em qualquer pasta/site do IIS: descarta tudo antes de "/api/".
+//   /troca-de-turno/controllers/index.php/api/painel  ->  /api/painel
+//   /api/painel                                        ->  /api/painel
+$posApi = strpos($uri, '/api/');
+if ($posApi !== false) {
+    $uri = substr($uri, $posApi);
+}
 $metodo = $_SERVER['REQUEST_METHOD'];
 $escrita = PERMITIR_GET_NAS_ESCRITAS ? in_array($metodo, ['GET', 'POST'], true) : $metodo === 'POST';
 
